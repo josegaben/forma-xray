@@ -1,0 +1,36 @@
+{
+  "name": "forma-xray",
+  "version": "1.0.0",
+  "description": "Deep web design system, runtime animation physics, scroll choreography & anti-slop DESIGN.md extractor for AI coding agents.",
+  "type": "module",
+  "bin": {
+    "forma-xray": "./bin/cli.mjs"
+  },
+  "exports": {
+    ".": "./src/analyzer.mjs",
+    "./playwright": "./src/playwright-probe.mjs"
+  },
+  "scripts": {
+    "xray": "node ./bin/cli.mjs",
+    "mcp": "node ./bin/cli.mjs mcp"
+  },
+  "keywords": [
+    "design-system",
+    "design-md",
+    "ai-agents",
+    "mcp",
+    "css-tokens",
+    "web-animations",
+    "motion-design",
+    "unslop",
+    "claude-code",
+    "cursor"
+  ],
+  "optionalDependencies": {
+    "playwright": "^1.52.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT"
+}
