@@ -1,6 +1,6 @@
 {
   "name": "forma-xray",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Deep web design system, runtime animation physics, Playwright visual section DOM extractor & Gemini Vision cataloger for AI coding agents.",
   "type": "module",
   "bin": {
