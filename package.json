@@ -13,7 +13,8 @@
   },
   "scripts": {
     "xray": "node ./bin/cli.mjs",
-    "mcp": "node ./bin/cli.mjs mcp"
+    "mcp": "node ./bin/cli.mjs mcp",
+    "test": "node --test test/*.test.mjs"
   },
   "keywords": [
     "design-system",

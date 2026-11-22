@@ -83,8 +83,9 @@ export async function analyzeSectionWithVision({
   imageBuffer,
   computedSpec,
   cleanDom,
+  apiKey: explicitApiKey,
 }) {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  const apiKey = explicitApiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (apiKey && imageBuffer) {
     try {
       const { GoogleGenAI } = await import(/* webpackIgnore: true */ "@google/genai");
@@ -707,6 +708,7 @@ export async function scanWebsiteSections(targetUrl, options = {}) {
         imageBuffer,
         computedSpec: cand.computedSpec,
         cleanDom: cand.cleanDom,
+        apiKey: options.apiKey,
       });
 
       capturedSections.push({
@@ -766,6 +768,7 @@ export async function scanWebsiteSections(targetUrl, options = {}) {
                 imageBuffer,
                 computedSpec: chosen.computedSpec,
                 cleanDom: chosen.cleanDom,
+                apiKey: options.apiKey,
               });
 
               capturedSections.push({

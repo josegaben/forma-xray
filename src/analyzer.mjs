@@ -36,24 +36,27 @@ function uniqueTop(items, limit = 10) {
     .map(([value, count]) => ({ value, count }));
 }
 
-function parseLuminanceMode(hexColors) {
+export function parseLuminanceMode(hexColors) {
   const bgCandidate = hexColors[0]?.value;
   if (!bgCandidate || !bgCandidate.startsWith("#")) return "light";
   const hex = bgCandidate.replace("#", "");
   const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex.slice(0, 6);
-  const r = parseInt(full.slice(0, 2), 16) || 245;
-  const g = parseInt(full.slice(2, 4), 16) || 245;
-  const b = parseInt(full.slice(4, 6), 16) || 245;
+  const pr = parseInt(full.slice(0, 2), 16);
+  const pg = parseInt(full.slice(2, 4), 16);
+  const pb = parseInt(full.slice(4, 6), 16);
+  const r = Number.isNaN(pr) ? 245 : pr;
+  const g = Number.isNaN(pg) ? 245 : pg;
+  const b = Number.isNaN(pb) ? 245 : pb;
   const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   return lum < 0.42 ? "dark" : "light";
 }
 
-function classifyEasingCurve(curve) {
+export function classifyEasingCurve(curve) {
   if (/linear\(/i.test(curve)) return "CSS linear() spring physics";
   const m = curve.match(/cubic-bezier\(\s*([\d.-]+)\s*,\s*([\d.-]+)\s*,\s*([\d.-]+)\s*,\s*([\d.-]+)\s*\)/i);
   if (!m) return "standard easing";
   const [, x1, y1, x2, y2] = m.map(Number);
-  if (y2 > 1.02 || y1 < -0.02) return "overshoot spring";
+  if (y1 > 1.02 || y2 > 1.02 || y1 < -0.02 || y2 < -0.02) return "overshoot spring";
   if (x1 <= 0.25 && y1 >= 0.8 && x2 <= 0.4 && y2 >= 0.98) return "snappy out-expo (Linear/Vercel grade)";
   if (Math.abs(x1 - 0.32) < 0.08 && Math.abs(y1 - 0.72) < 0.1 && y2 === 1) return "iOS sheet deceleration";
   return "custom cubic-bezier";
@@ -149,12 +152,22 @@ export async function analyzeWebsiteUrl(targetUrl, options = {}) {
     6
   );
 
-  // 3. Typography
+  // 3. Typography (Google Fonts + Fontshare CDN + @font-face)
   const googleFontFamilies = [
     ...combinedSource.matchAll(/fonts\.googleapis\.com\/css2\?([^"')\s]+)/gi),
   ].flatMap((m) =>
     [...m[1].matchAll(/family=([^&:]+)/gi)].map((f) =>
       decodeURIComponent(f[1]).replace(/\+/g, " ")
+    )
+  );
+  const fontshareFamilies = [
+    ...combinedSource.matchAll(/api\.fontshare\.com\/v2\/css\?([^"')\s]+)/gi),
+  ].flatMap((m) =>
+    [...m[1].matchAll(/f(?:\[\]|%5B%5D)=([^&@]+)/gi)].map((f) =>
+      decodeURIComponent(f[1])
+        .split("-")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ")
     )
   );
   const fontFaceFamilies = [
@@ -274,6 +287,7 @@ export async function analyzeWebsiteUrl(targetUrl, options = {}) {
 
   const primaryFont =
     fontFaceFamilies[0] ||
+    fontshareFamilies[0] ||
     googleFontFamilies[0] ||
     declaredFontStacks[0]?.value.split(",")[0]?.replace(/["']/g, "").trim() ||
     "Geist";
@@ -307,7 +321,7 @@ export async function analyzeWebsiteUrl(targetUrl, options = {}) {
       },
       typography: {
         primaryFont,
-        detectedFontFaces: [...new Set([...fontFaceFamilies, ...googleFontFamilies])].slice(0, 6),
+        detectedFontFaces: [...new Set([...fontFaceFamilies, ...fontshareFamilies, ...googleFontFamilies])].slice(0, 8),
         fontStacks: declaredFontStacks.slice(0, 4).map((f) => f.value),
         fluidClamps: fluidClamps.map((c) => c.value),
       },
