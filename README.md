@@ -11,6 +11,7 @@ Existing open-source tools made great strides in bringing design tokens to codin
 | Zero-install serverless mode (`< 1s`, no Chromium binary required) | — | ❌ | ❌ | ✅ **Dual Engine** |
 | **Motion Physics Classification** (`out-expo`, iOS sheet curves, `linear()` springs) | Manual | ❌ | Basic duration | ✅ **Full Curve Classifier** |
 | **Runtime WAAPI & Scroll Choreography** (`document.getAnimations()`, `animation-timeline: view()`, sticky stacks) | ❌ | ❌ | ❌ *(Static idle)* | ✅ **`--runtime` Probe** |
+| **Visual Section Segmentation + Clean DOM + Vision AI** (`navbar`, `hero`, `bento`, `pricing`, `footer` crops + `gemini-4-hydrogen` Vision) | ❌ | ❌ | ❌ | ✅ **`--sections` Vault** |
 | **Motion Engine Fingerprinting** (GSAP ScrollTrigger, Motion, Lenis, Rive, Three.js, View Transitions) | ❌ | ❌ | ❌ | ✅ |
 | **5-Layer Composable Genome** (Mix *Surface* of Site A + *Motion* of Site B + *Layout* of Site C) | ❌ | ❌ | ❌ | ✅ **Native to `forma.to`** |
 | **Built-in `unslop-ui` Craft & Anti-Slop Score (`0–100`)** | ❌ | ❌ | ❌ | ✅ |
@@ -29,6 +30,10 @@ npx forma-xray https://pdepablo.com --json
 
 # Enable optional Playwright WAAPI & Scroll-Triggered Choreography probe:
 npx forma-xray https://linear.app --runtime --out DESIGN.md
+
+# Render in Playwright, crop canonical UI sections (navbar, hero, bento, pricing, footer),
+# distill Clean Semantic DOM skeletons, and catalog with Gemini 4 Hydrogen Vision:
+GEMINI_API_KEY=... npx forma-xray https://cal.com --sections --out sections.json
 ```
 
 ### 2. Connect as an MCP Server (Claude Code, Cursor, Antigravity, Windsurf)

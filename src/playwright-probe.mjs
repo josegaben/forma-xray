@@ -4,21 +4,36 @@
  * interactive :hover state deltas, and scroll-triggered sticky offsets.
  */
 
+import { existsSync } from "node:fs";
+
+const CHROME_PATHS = [
+  process.env.CHROME_PATH,
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "/Applications/Chromium.app/Contents/MacOS/Chromium",
+  "/usr/bin/google-chrome",
+  "/usr/bin/chromium-browser",
+].filter(Boolean);
+
 export async function runPlaywrightRuntimeProbe(targetUrl) {
   let chromium;
   try {
-    const pw = await import("playwright");
-    chromium = pw.chromium;
+    const pw = await import(/* webpackIgnore: true */ "playwright-core");
+    chromium = pw.chromium || pw.default?.chromium;
   } catch {
     throw new Error(
-      "Playwright is optional and not installed. Run `npm i -D playwright && npx playwright install chromium` for deep WAAPI runtime probing, or run default zero-install mode."
+      "Playwright is optional and not installed. Run `npm i -D playwright-core` for deep WAAPI runtime probing, or run default zero-install mode."
     );
   }
 
-  const browser = await chromium.launch({ headless: true });
+  const executablePath = CHROME_PATHS.find((p) => p && existsSync(p));
+  const browser = await chromium.launch({
+    headless: true,
+    ...(executablePath ? { executablePath } : {}),
+  });
   try {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-    await page.goto(targetUrl, { waitUntil: "networkidle", timeout: 20000 });
+    await page.goto(targetUrl, { waitUntil: "domcontentloaded", timeout: 20000 });
+    await page.waitForTimeout(1200);
 
     const initialProbe = await page.evaluate(() => {
       // 1. Live Web Animations API (CSS Animations, CSS Transitions, WAAPI, Motion)
