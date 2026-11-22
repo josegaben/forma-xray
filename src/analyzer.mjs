@@ -23,6 +23,186 @@ const SLOP_SIGNALS = [
   { label: "Excessive Bounce/Spin Utility Classes", pattern: /animate-(bounce|ping)/g, penalty: 6 },
 ];
 
+export const COMMERCIAL_FONT_ROSETTA = [
+  {
+    commercial: "Klim Söhne / Neue Haas Grotesk",
+    foundry: "Klim Type Foundry / Linotype",
+    pattern: /\b(s[oö]hne|soehne|neue\s*haas|suisse\s*int)/i,
+    openTwin: "Uncut Sans + Commit Mono (or Fontshare Switzer)",
+    pairingId: "pair-uncut-commit",
+    openTypeFeatures: '"ss01" 1, "ss02" 1, "cv01" 1',
+    cssImport: "https://cdn.jsdelivr.net/npm/@fontsource/uncut-sans@5/index.css",
+  },
+  {
+    commercial: "Klim Signifier / Tiempos",
+    foundry: "Klim Type Foundry",
+    pattern: /\b(signifier|tiempos)\b/i,
+    openTwin: "Erode Variable + Satoshi (or Newsreader opsz 36..72)",
+    pairingId: "pair-erode-satoshi",
+    openTypeFeatures: '"liga" 1, "kern" 1, "onum" 1',
+    cssImport: "https://api.fontshare.com/v2/css?f[]=erode@400,500,600&f[]=satoshi@400,500,700&display=swap",
+  },
+  {
+    commercial: "Pangram PP Editorial New",
+    foundry: "Pangram Pangram",
+    pattern: /\b(pp\s*editorial|editorial\s*new)\b/i,
+    openTwin: "Boska + General Sans (or Instrument Serif Italic)",
+    pairingId: "pair-boska-generalsans",
+    openTypeFeatures: '"liga" 1, "swsh" 1',
+    cssImport: "https://api.fontshare.com/v2/css?f[]=boska@400,500,700&f[]=general-sans@400,500,600&display=swap",
+  },
+  {
+    commercial: "Pangram PP Neue Montreal / PP Mori / Grilli GT America",
+    foundry: "Pangram Pangram / Grilli Type",
+    pattern: /\b(neue\s*montreal|pp\s*mori|gt\s*america|roobert|aeonik)\b/i,
+    openTwin: "General Sans + Clash Display (Fontshare ITF)",
+    pairingId: "pair-clash-generalsans",
+    openTypeFeatures: '"ss01" 1, "tnum" 1',
+    cssImport: "https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=general-sans@400,500,600&display=swap",
+  },
+  {
+    commercial: "Dinamo ABC Whyte / ABC Diatype / ABC Favorit",
+    foundry: "ABCDinamo",
+    pattern: /\b(abc\s*whyte|abc\s*diatype|abc\s*favorit|diatype|whyte\s*inktrap)\b/i,
+    openTwin: "Instrument Sans + Martian Mono (or Bricolage Grotesque)",
+    pairingId: "pair-instrument-martian",
+    openTypeFeatures: '"ss01" 1, "ss03" 1, "tnum" 1',
+    cssImport: "https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..600&family=Martian+Mono:wght@400;500&display=swap",
+  },
+  {
+    commercial: "Commercial Type Canela / Grilli GT Super",
+    foundry: "Commercial Type / Grilli Type",
+    pattern: /\b(canela|gt\s*super|ogg\b|reckless\s*neue)\b/i,
+    openTwin: "Gambarino + Switzer (Fontshare ITF)",
+    pairingId: "pair-gambarino-switzer",
+    openTypeFeatures: '"liga" 1, "kern" 1',
+    cssImport: "https://api.fontshare.com/v2/css?f[]=gambarino@400&f[]=switzer@400,500,600&display=swap",
+  },
+  {
+    commercial: "U.S. Graphics Berkeley Mono / Lineto Akkurat Mono",
+    foundry: "U.S. Graphics / Lineto",
+    pattern: /\b(berkeley\s*mono|tx-02|akkurat\s*mono|pragmata\s*pro)\b/i,
+    openTwin: "Nippo + Switzer + Departure Mono / Commit Mono",
+    pairingId: "pair-nippo-departure",
+    openTypeFeatures: '"zero" 1, "tnum" 1, "ss01" 1',
+    cssImport: "https://api.fontshare.com/v2/css?f[]=nippo@400,500,700&f[]=switzer@400,500&display=swap",
+  },
+  {
+    commercial: "Lineto Circular / Commercial Graphik",
+    foundry: "Lineto / Commercial Type",
+    pattern: /\b(ll\s*circular|circular\s*std|graphik|gt\s*walsheim)\b/i,
+    openTwin: "Cabinet Grotesk + Satoshi + Geist Mono",
+    pairingId: "pair-cabinet-satoshi",
+    openTypeFeatures: '"ss01" 1, "tnum" 1',
+    cssImport: "https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&f[]=satoshi@400,500,700&display=swap",
+  },
+];
+
+export function matchCommercialFontTwins(fontNames = [], rawCss = "") {
+  const haystack = `${fontNames.join(" | ")}\n${rawCss.slice(0, 40000)}`;
+  return COMMERCIAL_FONT_ROSETTA.filter((entry) => entry.pattern.test(haystack)).map(
+    ({ commercial, foundry, openTwin, pairingId, openTypeFeatures, cssImport }) => ({
+      commercial,
+      foundry,
+      openTwin,
+      pairingId,
+      openTypeFeatures,
+      cssImport,
+    })
+  );
+}
+
+function hexToRgbTuple(hexInput) {
+  if (!hexInput || typeof hexInput !== "string") return [245, 245, 244];
+  const clean = hexInput.trim().replace(/^#/, "");
+  const full =
+    clean.length === 3
+      ? clean
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : clean.slice(0, 6);
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  return [
+    Number.isNaN(r) ? 245 : r,
+    Number.isNaN(g) ? 245 : g,
+    Number.isNaN(b) ? 245 : b,
+  ];
+}
+
+/**
+ * Deterministic APCA-W3 (0.0.98G-4g) Perceptual Lightness Contrast (Lc).
+ * Positive values indicate dark text on light background; negative values light text on dark background.
+ * Returns rounded absolute & signed Lc so callers can enforce Lc >= 75 (body) / Lc >= 60 (UI).
+ */
+export function computeApcaLc(textHex, bgHex) {
+  const [tr, tg, tb] = hexToRgbTuple(textHex);
+  const [br, bg, bb] = hexToRgbTuple(bgHex);
+
+  const srgbToY = (r, g, b) =>
+    0.2126729 * Math.pow(r / 255, 2.4) +
+    0.7151522 * Math.pow(g / 255, 2.4) +
+    0.072175 * Math.pow(b / 255, 2.4);
+
+  const softClamp = (y) => (y < 0.022 ? y + Math.pow(0.022 - y, 1.414) : y);
+
+  const yTxt = softClamp(srgbToY(tr, tg, tb));
+  const yBg = softClamp(srgbToY(br, bg, bb));
+
+  if (Math.abs(yBg - yTxt) < 0.0005) {
+    return { signed: 0, abs: 0, polarity: "flat" };
+  }
+
+  let sapc = 0;
+  let polarity = "dark-on-light";
+  if (yBg > yTxt) {
+    sapc = (Math.pow(yBg, 0.56) - Math.pow(yTxt, 0.57)) * 1.14;
+    sapc = sapc < 0.1 ? 0 : sapc - 0.027;
+  } else {
+    polarity = "light-on-dark";
+    sapc = (Math.pow(yBg, 0.65) - Math.pow(yTxt, 0.62)) * 1.14;
+    sapc = sapc > -0.1 ? 0 : sapc + 0.027;
+  }
+
+  const signed = Math.round(sapc * 1000) / 10;
+  return {
+    signed,
+    abs: Math.round(Math.abs(signed) * 10) / 10,
+    polarity,
+  };
+}
+
+/**
+ * Audits CSS clamp(min, preferred, max) rules against WCAG 1.4.4 200% zoom reflow (max <= 2.5x min).
+ */
+export function auditClampZoomSafety(clampStrings = []) {
+  const unsafe = [];
+  const toRem = (token) => {
+    const t = String(token || "").trim();
+    const remMatch = t.match(/^([\d.]+)rem$/i);
+    if (remMatch) return parseFloat(remMatch[1]);
+    const pxMatch = t.match(/^([\d.]+)px$/i);
+    if (pxMatch) return parseFloat(pxMatch[1]) / 16;
+    return null;
+  };
+
+  for (const raw of clampStrings) {
+    const inner = raw.match(/clamp\(\s*([^,]+),\s*([^,]+),\s*([^)]+)\)/i);
+    if (!inner) continue;
+    const minRem = toRem(inner[1]);
+    const maxRem = toRem(inner[3]);
+    if (minRem && maxRem && minRem > 0) {
+      const ratio = Math.round((maxRem / minRem) * 100) / 100;
+      if (ratio > 2.52) {
+        unsafe.push({ expression: raw, ratio });
+      }
+    }
+  }
+  return unsafe;
+}
+
 function uniqueTop(items, limit = 10) {
   const counts = new Map();
   for (const raw of items) {
@@ -170,6 +350,14 @@ export async function analyzeWebsiteUrl(targetUrl, options = {}) {
         .join(" ")
     )
   );
+  const fontsourceFamilies = [
+    ...combinedSource.matchAll(/@fontsource(?:-variable)?\/([a-z0-9-]+)/gi),
+  ].map((m) =>
+    m[1]
+      .split("-")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ")
+  );
   const fontFaceFamilies = [
     ...fullCss.matchAll(/@font-face\s*\{[^}]*font-family\s*:\s*["']?([^;"'}]+)["']?/gi),
   ].map((m) => m[1].trim());
@@ -177,10 +365,15 @@ export async function analyzeWebsiteUrl(targetUrl, options = {}) {
     [...fullCss.matchAll(/font-family\s*:\s*([^;}{]+)/gi)].map((m) => m[1]),
     8
   );
+  const openTypeFeatureSettings = uniqueTop(
+    [...fullCss.matchAll(/font-feature-settings\s*:\s*([^;}{]+)/gi)].map((m) => m[1]),
+    5
+  ).map((f) => f.value);
   const fluidClamps = uniqueTop(
     [...fullCss.matchAll(/clamp\([^)]+\)/gi)].map((m) => m[0]),
     6
   );
+  const unsafeZoomClamps = auditClampZoomSafety(fluidClamps.map((c) => c.value));
 
   // 4. Layout & Modern Web Platform Features
   const maxWidths = uniqueTop(
@@ -194,6 +387,62 @@ export async function analyzeWebsiteUrl(targetUrl, options = {}) {
     popoverApi: /\bpopover(=|target|\b)/i.test(html),
     tabularNums: /tabular-nums/i.test(fullCss),
     backdropBlur: /backdrop-filter:\s*blur/i.test(fullCss),
+    fontSizeAdjust: /font-size-adjust\s*:\s*from-font/i.test(fullCss),
+    textWrapBalance: /text-wrap\s*:\s*balance/i.test(fullCss),
+    userInvalidValidation: /:user-invalid\b/i.test(fullCss),
+  };
+
+  // 4b. DOM UX, Conversion (GoodUI / Baymard / Laws of UX) & CSS Hygiene (Project Wallace)
+  const h1Matches = [...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].map((m) =>
+    m[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+  ).filter(Boolean);
+  const buttonLabels = [
+    ...html.matchAll(/<(?:button|a)\b[^>]*>([\s\S]{1,160}?)<\/(?:button|a)>/gi),
+  ]
+    .map((m) => m[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim())
+    .filter((txt) => txt.length >= 2 && txt.length <= 42);
+
+  const vagueCtaLabels = [
+    ...new Set(
+      buttonLabels.filter((txt) =>
+        /^(submit|enviar|send|click here|haz clic|learn more|saber m[aá]s|read more)$/i.test(txt)
+      )
+    ),
+  ].slice(0, 5);
+
+  const inputCount = [
+    ...html.matchAll(/<input\b(?![^>]*type=["'](?:hidden|submit|button|reset)["'])[^>]*>/gi),
+  ].length;
+  const labelCount = [...html.matchAll(/<label\b[^>]*>/gi)].length;
+
+  const domSignals = {
+    h1Count: h1Matches.length,
+    primaryH1: h1Matches[0] || "",
+    ctaCount: buttonLabels.length,
+    vagueCtaLabels,
+    inputCount,
+    labelCount,
+    hasOgImage: /<meta[^>]+property=["']og:image["'][^>]+content=["'][^"']+["']/i.test(html),
+    hasMainLandmark: /<main\b/i.test(html),
+    hasNavLandmark: /<nav\b/i.test(html),
+    hasFooterLandmark: /<footer\b/i.test(html),
+    hasLangAttr: /<html[^>]+lang=["'][a-zA-Z-]+["']/i.test(html),
+  };
+
+  const importantCount = [...fullCss.matchAll(/!important\b/gi)].length;
+  const uniqueHexCount = new Set(hexMatches).size;
+  const hasFocusVisible = /:focus-visible\b/i.test(fullCss);
+  const hasLayoutThrashTransition =
+    /transition\s*:\s*all\b/i.test(fullCss) ||
+    /@keyframes\s+[^{]+\{[^}]*\b(?:top|left|width|height|margin)\s*:/i.test(fullCss);
+
+  const cssHygiene = {
+    importantCount,
+    uniqueHexCount,
+    cssVariableCount: cssVars.length,
+    hasFocusVisible,
+    hasLayoutThrashTransition,
+    unsafeZoomClamps,
   };
 
   // 5. Deep Motion, Physics & Choreography Analysis
@@ -263,6 +512,10 @@ export async function analyzeWebsiteUrl(targetUrl, options = {}) {
     craftScore += 4;
     strengths.push("Perceptual OKLCH color space");
   }
+  if (openTypeFeatureSettings.length > 0) {
+    craftScore += 3;
+    strengths.push(`OpenType features enabled (${openTypeFeatureSettings[0]})`);
+  }
 
   craftScore = Math.max(15, Math.min(99, craftScore));
 
@@ -285,12 +538,32 @@ export async function analyzeWebsiteUrl(targetUrl, options = {}) {
         !/^#([0-9a-f])\1\1/i.test(c.value)
     )?.value || inkHex;
 
+  const detectedFontFaces = [
+    ...new Set([
+      ...fontFaceFamilies,
+      ...fontshareFamilies,
+      ...fontsourceFamilies,
+      ...googleFontFamilies,
+    ]),
+  ].slice(0, 10);
+
   const primaryFont =
     fontFaceFamilies[0] ||
     fontshareFamilies[0] ||
+    fontsourceFamilies[0] ||
     googleFontFamilies[0] ||
     declaredFontStacks[0]?.value.split(",")[0]?.replace(/["']/g, "").trim() ||
     "Geist";
+
+  const rosettaMatches = matchCommercialFontTwins(
+    [primaryFont, ...detectedFontFaces, ...declaredFontStacks.map((f) => f.value)],
+    fullCss
+  );
+
+  const apcaContrast = {
+    bodyLc: computeApcaLc(inkHex, bgHex),
+    accentOnBgLc: computeApcaLc(accentHex, bgHex),
+  };
 
   const primaryEasing =
     bezierCurves[0]?.curve || "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -308,6 +581,9 @@ export async function analyzeWebsiteUrl(targetUrl, options = {}) {
       strengths,
       warnings,
     },
+    apcaContrast,
+    domSignals,
+    cssHygiene,
     layers: {
       surface: {
         mode,
@@ -321,9 +597,11 @@ export async function analyzeWebsiteUrl(targetUrl, options = {}) {
       },
       typography: {
         primaryFont,
-        detectedFontFaces: [...new Set([...fontFaceFamilies, ...fontshareFamilies, ...googleFontFamilies])].slice(0, 8),
+        detectedFontFaces,
         fontStacks: declaredFontStacks.slice(0, 4).map((f) => f.value),
+        openTypeFeatures: openTypeFeatureSettings,
         fluidClamps: fluidClamps.map((c) => c.value),
+        rosettaMatches,
       },
       layout: {
         maxWidths: maxWidths.map((w) => w.value),
@@ -349,6 +627,19 @@ export async function analyzeWebsiteUrl(targetUrl, options = {}) {
 
 export function renderDesignMdFromXray(report) {
   const { surface, typography, layout, motion } = report.layers;
+  const rosettaBlock =
+    typography.rosettaMatches && typography.rosettaMatches.length > 0
+      ? `\n- **Open-Source Legal Twin (Rosetta Match):** ${typography.rosettaMatches
+          .map(
+            (r) =>
+              `${r.commercial} → **${r.openTwin}** (\`font-feature-settings: ${r.openTypeFeatures}\`)`
+          )
+          .join(" · ")}`
+      : "";
+  const apcaLine = report.apcaContrast?.bodyLc
+    ? `\n- **Perceptual Contrast (APCA-W3):** \`Lc ${report.apcaContrast.bodyLc.signed}\` (\`--ink\` on \`--bg\`)`
+    : "";
+
   return `# DESIGN.md — Extracted by forma-xray (${report.hostname})
 > Source: ${report.url}
 > Craft & Anti-Slop Score: **${report.craftScore}/100 (${report.antiSlopAudit.grade})**
@@ -356,14 +647,14 @@ export function renderDesignMdFromXray(report) {
 ## 1. Surface & Color Tokens (${surface.mode} mode)
 - \`--bg\`: \`${surface.bg}\`
 - \`--ink\`: \`${surface.ink}\`
-- \`--accent\`: \`${surface.accent}\`
+- \`--accent\`: \`${surface.accent}\`${apcaLine}
 - **Palette Distribution:** ${surface.topHexPalette.map((c) => `\`${c.value}\` (${c.count}×)`).join(", ") || "Minimal monochrome"}
 - **Border Radii:** ${surface.radii.join(", ") || "8px, 9999px"}
 
 ## 2. Typography
 - **Primary Family:** \`${typography.primaryFont}\`
 - **Detected Fonts:** ${typography.detectedFontFaces.join(", ") || typography.fontStacks[0] || "System / Neo-grotesque"}
-- **Fluid Scales (\`clamp()\`):** ${typography.fluidClamps.join(" | ") || "clamp(2.25rem, 5vw, 4rem)"}
+- **Fluid Scales (\`clamp()\`):** ${typography.fluidClamps.join(" | ") || "clamp(2.25rem, 1.4rem + 2.5vw, 4rem)"}${rosettaBlock}
 
 ## 3. Spatial Layout & Modern CSS
 - **Container Max-Widths:** ${layout.maxWidths.join(", ") || "1180px"}

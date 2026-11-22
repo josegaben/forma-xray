@@ -6,7 +6,10 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   analyzeWebsiteUrl,
+  auditClampZoomSafety,
   classifyEasingCurve,
+  computeApcaLc,
+  matchCommercialFontTwins,
   parseLuminanceMode,
 } from "../src/analyzer.mjs";
 
@@ -107,6 +110,24 @@ test("analyzeWebsiteUrl penalizes AI-slop purple gradients and fake numbered eye
   } finally {
     server.close();
   }
+});
+
+test("computeApcaLc, matchCommercialFontTwins, and auditClampZoomSafety evaluate perceptual & typographic quality", () => {
+  const highLight = computeApcaLc("#141413", "#f4f4f1");
+  assert.ok(highLight.abs >= 90, `Expected high APCA Lc >= 90, got ${highLight.abs}`);
+  const lowDark = computeApcaLc("#4b5563", "#111827");
+  assert.ok(lowDark.abs < 45, `Expected low APCA Lc < 45, got ${lowDark.abs}`);
+
+  const rosetta = matchCommercialFontTwins(["Söhne", "PP Editorial New", "Berkeley Mono"]);
+  assert.ok(rosetta.length >= 3, `Expected >= 3 Rosetta font matches, got ${rosetta.length}`);
+  assert.ok(rosetta.some((r) => r.pairingId === "pair-uncut-commit"));
+
+  const unsafeClamps = auditClampZoomSafety([
+    "clamp(1rem, 4vw, 4rem)",
+    "clamp(2rem, 1.2rem + 2.5vw, 4.4rem)",
+  ]);
+  assert.equal(unsafeClamps.length, 1);
+  assert.equal(unsafeClamps[0].ratio, 4);
 });
 
 test("CLI --help and MCP stdio server respond cleanly", () => {
